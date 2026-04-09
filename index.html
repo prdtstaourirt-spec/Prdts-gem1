@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRDTS Dashboard - Taourirt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background-color: #1a5276 !important; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #1a5276; }
+        .progress { height: 12px; border-radius: 6px; }
+        .btn-primary { background-color: #1a5276; border: none; }
+        .btn-primary:hover { background-color: #154360; }
+        .table-container { background: white; padding: 15px; border-radius: 12px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">Gestion de Projets PRDTS</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row text-center">
+        <div class="col-6 col-md-4">
+            <div class="card p-3">
+                <small class="text-muted">Total Projets</small>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card p-3">
+                <small class="text-muted">Engagements (DH)</small>
+                <div class="stat-value" id="statCout" style="font-size: 1.2rem; padding-top: 10px;">0</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card p-3">
+                <small class="text-muted">Avancement Moyen</small>
+                <div class="stat-value" id="statAvg">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <h5 id="formTitle" class="mb-3">➕ Ajouter / Modifier un Projet</h5>
+        <form id="projectForm" class="row g-3">
+            <input type="hidden" id="editIndex">
+            <div class="col-md-4">
+                <label class="form-label">Commune</label>
+                <input type="text" id="commune" class="form-control" placeholder="Nom de la commune" required>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">Intitulé du Projet</label>
+                <input type="text" id="intitule" class="form-control" placeholder="Description du projet" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Secteur</label>
+                <select id="secteur" class="form-select">
+                    <option value="Education">Education</option>
+                    <option value="Santé">Santé</option>
+                    <option value="Routes">Routes</option>
+                    <option value="Eau/Electricité">Eau & Électricité</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Coût Engagé (DH)</label>
+                <input type="number" id="cout" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Avancement (%)</label>
+                <input type="number" id="avancement" class="form-control" min="0" max="100" value="0">
+            </div>
+            <div class="col-12 text-end">
+                <button type="button" onclick="resetForm()" class="btn btn-light me-2">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer la donnée</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container mb-5">
+        <h5 class="mb-3">📋 Liste des Projets Actuels</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Commune / Projet</th>
+                        <th>Coût</th>
+                        <th>Avancement</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="projectTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
