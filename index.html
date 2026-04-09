@@ -1,106 +1,833 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRDTS Dashboard - Taourirt</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar { background-color: #1a5276 !important; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
-        .stat-value { font-size: 1.8rem; font-weight: bold; color: #1a5276; }
-        .progress { height: 12px; border-radius: 6px; }
-        .btn-primary { background-color: #1a5276; border: none; }
-        .btn-primary:hover { background-color: #154360; }
-        .table-container { background: white; padding: 15px; border-radius: 12px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PRDTS - Province de Taourirt</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222636;
+    --border: #2e3347;
+    --accent: #3b82f6;
+    --accent2: #10b981;
+    --accent3: #f59e0b;
+    --accent4: #ef4444;
+    --accent5: #8b5cf6;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+
+  /* HEADER */
+  .header { background:linear-gradient(135deg,#1e293b,#0f172a); padding:16px 20px; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:12px; }
+  .header-logo { width:40px; height:40px; background:linear-gradient(135deg,var(--accent),var(--accent5)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .header-title { flex:1; }
+  .header-title h1 { font-size:15px; font-weight:700; color:var(--text); }
+  .header-title p { font-size:11px; color:var(--text2); margin-top:2px; }
+  .header-actions { display:flex; gap:8px; }
+  .btn-icon { background:var(--surface2); border:1px solid var(--border); color:var(--text2); width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:all 0.2s; }
+  .btn-icon:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+  /* NAV */
+  .nav { display:flex; gap:0; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; padding:0 16px; scrollbar-width:none; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav-btn { background:none; border:none; color:var(--text3); padding:12px 16px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; transition:all 0.2s; display:flex; align-items:center; gap:6px; }
+  .nav-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .nav-btn:hover:not(.active) { color:var(--text); }
+  .nav-badge { background:var(--accent); color:#fff; font-size:10px; padding:1px 6px; border-radius:10px; }
+
+  /* TABS CONTENT */
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* DASHBOARD */
+  .dashboard { padding:16px; }
+  .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px; }
+  @media(min-width:600px) { .stats-grid { grid-template-columns:repeat(4,1fr); } }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; opacity:0.08; transform:translate(20px,-20px); }
+  .stat-card.blue::before { background:var(--accent); }
+  .stat-card.green::before { background:var(--green); }
+  .stat-card.yellow::before { background:var(--yellow); }
+  .stat-card.purple::before { background:var(--accent5); }
+  .stat-icon { font-size:22px; margin-bottom:8px; }
+  .stat-value { font-size:24px; font-weight:800; color:var(--text); }
+  .stat-label { font-size:11px; color:var(--text3); margin-top:4px; }
+  .stat-change { font-size:11px; margin-top:6px; }
+  .stat-change.pos { color:var(--green); }
+  .stat-change.neg { color:var(--red); }
+
+  .section-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .section-title span { color:var(--text3); font-weight:400; font-size:12px; }
+
+  /* Charts row */
+  .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  @media(max-width:600px) { .charts-row { grid-template-columns:1fr; } }
+  .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .chart-title { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:12px; }
+
+  /* Bar chart */
+  .bar-chart { display:flex; flex-direction:column; gap:8px; }
+  .bar-row { display:flex; align-items:center; gap:8px; }
+  .bar-label { font-size:10px; color:var(--text3); width:80px; text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar-wrap { flex:1; background:var(--surface2); border-radius:4px; height:18px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; transition:width 0.6s ease; display:flex; align-items:center; padding-left:6px; }
+  .bar-val { font-size:9px; color:#fff; font-weight:600; white-space:nowrap; }
+
+  /* Donut */
+  .donut-wrap { display:flex; align-items:center; gap:12px; }
+  .donut-svg { flex-shrink:0; }
+  .donut-legend { display:flex; flex-direction:column; gap:6px; flex:1; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text2); }
+  .legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+
+  /* Recent projects */
+  .recent-list { display:flex; flex-direction:column; gap:8px; }
+  .recent-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; display:flex; align-items:center; gap:10px; }
+  .recent-sector-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .recent-info { flex:1; min-width:0; }
+  .recent-title { font-size:12px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .recent-sub { font-size:10px; color:var(--text3); margin-top:2px; }
+  .progress-mini { display:flex; align-items:center; gap:6px; }
+  .progress-bar { width:50px; height:4px; background:var(--surface2); border-radius:2px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:2px; }
+  .progress-pct { font-size:10px; color:var(--text2); font-weight:600; }
+
+  /* DATA TABLE */
+  .table-section { padding:16px; }
+  .table-controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .search-box { flex:1; min-width:200px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; outline:none; }
+  .search-box:focus { border-color:var(--accent); }
+  .filter-select { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:12px; outline:none; cursor:pointer; }
+  .filter-select:focus { border-color:var(--accent); }
+  .btn-add { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .btn-add:hover { opacity:0.9; }
+
+  .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
+  table { width:100%; border-collapse:collapse; min-width:800px; }
+  thead { background:var(--surface2); }
+  th { padding:10px 12px; text-align:left; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:10px 12px; font-size:12px; color:var(--text); border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(59,130,246,0.04); }
+  .td-truncate { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+  .badge-edu { background:rgba(59,130,246,0.15); color:#60a5fa; }
+  .badge-sante { background:rgba(239,68,68,0.15); color:#f87171; }
+  .badge-rnc { background:rgba(245,158,11,0.15); color:#fbbf24; }
+  .badge-rc { background:rgba(139,92,246,0.15); color:#a78bfa; }
+  .badge-elec { background:rgba(16,185,129,0.15); color:#34d399; }
+  .badge-aep { background:rgba(6,182,212,0.15); color:#22d3ee; }
+  .badge-piste { background:rgba(249,115,22,0.15); color:#fb923c; }
+  .badge-indh { background:rgba(239,68,68,0.12); color:#fca5a5; }
+  .badge-fdrzm { background:rgba(139,92,246,0.12); color:#c4b5fd; }
+  .badge-cro { background:rgba(16,185,129,0.12); color:#6ee7b7; }
+  .action-btns { display:flex; gap:4px; }
+  .btn-edit { background:rgba(59,130,246,0.15); color:#60a5fa; border:none; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer; }
+  .btn-edit:hover { background:var(--accent); color:#fff; }
+  .btn-del { background:rgba(239,68,68,0.15); color:#f87171; border:none; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer; }
+  .btn-del:hover { background:var(--red); color:#fff; }
+  .taux-cell { display:flex; align-items:center; gap:6px; }
+  .taux-bar { width:40px; height:5px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .taux-fill { height:100%; border-radius:3px; }
+  .pagination { display:flex; align-items:center; gap:8px; padding:12px 16px; justify-content:center; border-top:1px solid var(--border); }
+  .page-btn { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; }
+  .page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .page-btn:disabled { opacity:0.4; cursor:not-allowed; }
+  .page-info { font-size:12px; color:var(--text3); }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; transform:translateY(20px); transition:transform 0.2s; }
+  .modal-overlay.open .modal { transform:translateY(0); }
+  .modal-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--surface); }
+  .modal-title { font-size:15px; font-weight:700; }
+  .modal-close { background:var(--surface2); border:1px solid var(--border); color:var(--text2); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .modal-body { padding:20px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:480px) { .form-grid { grid-template-columns:1fr; } }
+  .form-group { display:flex; flex-direction:column; gap:4px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; }
+  .form-input { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; outline:none; width:100%; }
+  .form-input:focus { border-color:var(--accent); }
+  select.form-input { cursor:pointer; }
+  .form-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+  .btn-cancel { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:8px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
+  .btn-save { background:var(--accent); border:none; color:#fff; padding:8px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
+  .btn-save:hover { opacity:0.9; }
+
+  /* TOAST */
+  .toast { position:fixed; bottom:20px; right:20px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--text); z-index:300; display:flex; align-items:center; gap:8px; transform:translateY(60px); opacity:0; transition:all 0.3s; max-width:280px; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.success { border-left:3px solid var(--green); }
+  .toast.error { border-left:3px solid var(--red); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* Empty state */
+  .empty { text-align:center; padding:40px; color:var(--text3); }
+  .empty-icon { font-size:40px; margin-bottom:12px; }
+</style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark mb-4">
-    <div class="container">
-        <span class="navbar-brand mb-0 h1">Gestion de Projets PRDTS</span>
-    </div>
-</nav>
-
-<div class="container">
-    <div class="row text-center">
-        <div class="col-6 col-md-4">
-            <div class="card p-3">
-                <small class="text-muted">Total Projets</small>
-                <div class="stat-value" id="statTotal">0</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card p-3">
-                <small class="text-muted">Engagements (DH)</small>
-                <div class="stat-value" id="statCout" style="font-size: 1.2rem; padding-top: 10px;">0</div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card p-3">
-                <small class="text-muted">Avancement Moyen</small>
-                <div class="stat-value" id="statAvg">0%</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card p-4">
-        <h5 id="formTitle" class="mb-3">➕ Ajouter / Modifier un Projet</h5>
-        <form id="projectForm" class="row g-3">
-            <input type="hidden" id="editIndex">
-            <div class="col-md-4">
-                <label class="form-label">Commune</label>
-                <input type="text" id="commune" class="form-control" placeholder="Nom de la commune" required>
-            </div>
-            <div class="col-md-8">
-                <label class="form-label">Intitulé du Projet</label>
-                <input type="text" id="intitule" class="form-control" placeholder="Description du projet" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Secteur</label>
-                <select id="secteur" class="form-select">
-                    <option value="Education">Education</option>
-                    <option value="Santé">Santé</option>
-                    <option value="Routes">Routes</option>
-                    <option value="Eau/Electricité">Eau & Électricité</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Coût Engagé (DH)</label>
-                <input type="number" id="cout" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Avancement (%)</label>
-                <input type="number" id="avancement" class="form-control" min="0" max="100" value="0">
-            </div>
-            <div class="col-12 text-end">
-                <button type="button" onclick="resetForm()" class="btn btn-light me-2">Annuler</button>
-                <button type="submit" class="btn btn-primary">Enregistrer la donnée</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="table-container mb-5">
-        <h5 class="mb-3">📋 Liste des Projets Actuels</h5>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Commune / Projet</th>
-                        <th>Coût</th>
-                        <th>Avancement</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="projectTableBody">
-                    </tbody>
-            </table>
-        </div>
-    </div>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">🏛️</div>
+  <div class="header-title">
+    <h1>PRDTS — Province de Taourirt</h1>
+    <p>Tableau de bord — Avancement des projets</p>
+  </div>
 </div>
 
-<script src="app.js"></script>
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Tableau de bord</button>
+  <button class="nav-btn" onclick="switchTab('fdrzm')">📋 FDRZM & INDH <span class="nav-badge" id="badge-fdrzm">0</span></button>
+  <button class="nav-btn" onclick="switchTab('cro')">⚡ CRO / AEP & Élec <span class="nav-badge" id="badge-cro">0</span></button>
+  <button class="nav-btn" onclick="switchTab('education')">🏫 Éducation <span class="nav-badge" id="badge-edu">0</span></button>
+  <button class="nav-btn" onclick="switchTab('sante')">🏥 Santé <span class="nav-badge" id="badge-sante">0</span></button>
+  <button class="nav-btn" onclick="switchTab('rnc')">🛣️ RNC <span class="nav-badge" id="badge-rnc">0</span></button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Ajouter un projet</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TAB: DASHBOARD -->
+<div class="tab-content active" id="tab-dashboard">
+  <div class="dashboard">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="section-title">📈 Répartition par secteur <span>Total projets FDRZM & INDH</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Projets par secteur</div>
+        <div class="bar-chart" id="sector-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Source de financement</div>
+        <div class="donut-wrap" id="finance-chart"></div>
+      </div>
+    </div>
+    <div class="section-title">🕐 Projets récents <span>Dernières entrées</span></div>
+    <div class="recent-list" id="recent-list"></div>
+  </div>
+</div>
+
+<!-- TAB: FDRZM -->
+<div class="tab-content" id="tab-fdrzm">
+  <div class="table-section">
+    <div class="table-controls">
+      <input class="search-box" id="search-fdrzm" placeholder="🔍 Rechercher..." oninput="renderTable('fdrzm')">
+      <select class="filter-select" id="filter-fdrzm-secteur" onchange="renderTable('fdrzm')">
+        <option value="">Tous secteurs</option>
+      </select>
+      <select class="filter-select" id="filter-fdrzm-annee" onchange="renderTable('fdrzm')">
+        <option value="">Toutes années</option>
+      </select>
+      <button class="btn-add" onclick="openAddModal('fdrzm')">+ Ajouter</button>
+    </div>
+    <div class="table-wrap">
+      <table id="table-fdrzm">
+        <thead>
+          <tr>
+            <th>Commune</th>
+            <th>Intitulé</th>
+            <th>Secteur</th>
+            <th>Année</th>
+            <th>Source</th>
+            <th>Coût (DH)</th>
+            <th>Taux</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-fdrzm"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pag-fdrzm"></div>
+  </div>
+</div>
+
+<!-- TAB: CRO -->
+<div class="tab-content" id="tab-cro">
+  <div class="table-section">
+    <div class="table-controls">
+      <input class="search-box" id="search-cro" placeholder="🔍 Rechercher..." oninput="renderTable('cro')">
+      <select class="filter-select" id="filter-cro-secteur" onchange="renderTable('cro')">
+        <option value="">Tous secteurs</option>
+      </select>
+      <button class="btn-add" onclick="openAddModal('cro')">+ Ajouter</button>
+    </div>
+    <div class="table-wrap">
+      <table id="table-cro">
+        <thead>
+          <tr>
+            <th>Commune</th>
+            <th>Localité</th>
+            <th>Intitulé</th>
+            <th>Secteur</th>
+            <th>Année</th>
+            <th>Coût (KDH)</th>
+            <th>Bénéficiaires</th>
+            <th>Taux</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-cro"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pag-cro"></div>
+  </div>
+</div>
+
+<!-- TAB: EDUCATION -->
+<div class="tab-content" id="tab-education">
+  <div class="table-section">
+    <div class="table-controls">
+      <input class="search-box" id="search-education" placeholder="🔍 Rechercher..." oninput="renderTable('education')">
+      <button class="btn-add" onclick="openAddModal('education')">+ Ajouter</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Commune</th>
+            <th>Intitulé du projet</th>
+            <th>Estimation initiale (DH)</th>
+            <th>Coût global (DH)</th>
+            <th>Différence (DH)</th>
+            <th>État d'avancement</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-education"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SANTE -->
+<div class="tab-content" id="tab-sante">
+  <div class="table-section">
+    <div class="table-controls">
+      <input class="search-box" id="search-sante" placeholder="🔍 Rechercher..." oninput="renderTable('sante')">
+      <button class="btn-add" onclick="openAddModal('sante')">+ Ajouter</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Année</th>
+            <th>Commune</th>
+            <th>Intitulé du projet</th>
+            <th>Estimation initiale (DH)</th>
+            <th>Coût global (DH)</th>
+            <th>Différence (DH)</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-sante"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: RNC -->
+<div class="tab-content" id="tab-rnc">
+  <div class="table-section">
+    <div class="table-controls">
+      <input class="search-box" id="search-rnc" placeholder="🔍 Rechercher..." oninput="renderTable('rnc')">
+      <button class="btn-add" onclick="openAddModal('rnc')">+ Ajouter</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Année</th>
+            <th>Intitulé</th>
+            <th>Estimation initiale (DH)</th>
+            <th>Coût global (DH)</th>
+            <th>Différence (DH)</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-rnc"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const DB = {
+  fdrzm_indh: [{"commune":"Ahl Oued Za","intitule":"achat minibus pour transport scolaire pour l'école communautaire","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"1942989.64","credits_delegues":"1942989.64","credits_engages":"1942989.64","credits_emis":"1942989.64","date_demarrage":"2018-07-24","marche_no":"22/2017","date_fin":"2017-07-28","taux_avancement":"1","observations":"5200000"},{"commune":"Sidi Lahcen","intitule":"Acquisition d'un minibus de transport scolaire ","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-25","marche_no":"","date_fin":"2017-07-29","taux_avancement":"1","observations":""},{"commune":"Machraa Hammadi","intitule":"Acquisition d'un minibus de transport scolaire ","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-26","marche_no":"","date_fin":"2017-07-30","taux_avancement":"1","observations":""},{"commune":"Ahl Oued Za","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-27","marche_no":"","date_fin":"2017-07-31","taux_avancement":"1","observations":""},{"commune":"Cercle El Aïoun","intitule":"Acquisition d'un fourgon mortuaire","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-28","marche_no":"","date_fin":"2017-08-01","taux_avancement":"1","observations":""},{"commune":"El Ateuf","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"2831588.77","credits_delegues":"2831588.77","credits_engages":"2831588.77","credits_emis":"2831588.77","date_demarrage":"2018-07-24","marche_no":"21/2017","date_fin":"2017-07-28","taux_avancement":"1","observations":""},{"commune":"Melg El Ouidane","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-25","marche_no":"","date_fin":"2017-07-29","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-26","marche_no":"","date_fin":"2017-07-30","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen","intitule":"Acquisition d'une ambulance","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-27","marche_no":"","date_fin":"2017-07-31","taux_avancement":"1","observations":""},{"commune":"Machraa Hammadi","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-28","marche_no":"","date_fin":"2017-08-01","taux_avancement":"1","observations":""},{"commune":"Mestegmer","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-29","marche_no":"","date_fin":"2017-08-02","taux_avancement":"1","observations":""},{"commune":"Ain Lahjer","intitule":"Acquisition d'un véhicule tout terrain équipé (unité mobile)","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"2018-07-30","marche_no":"","date_fin":"2017-08-03","taux_avancement":"1","observations":""},{"commune":"Sidi Ali Belkacem","intitule":"Aménagement de la piste khlifite  sur 2,37 km ","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"1600000","credits_delegues":"1256259","credits_engages":"1256259","credits_emis":"1256259","date_demarrage":"2018-01-03","marche_no":",,","date_fin":"2018-07-18","taux_avancement":"1","observations":""},{"commune":"Tancherfi","intitule":"Aménagement de la piste reliant la RP 6007 vers Kahf darghal sur 4,33 km","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2969000","credits_delegues":"2532144.96","credits_engages":"2532144.96","credits_emis":"2532144.96","date_demarrage":"2018-01-05","marche_no":",,","date_fin":"2023-10-18","taux_avancement":"1","observations":""},{"commune":"Tancherfi","intitule":"Aménagement de la piste reliant la RP6005 à  ouled Moussa sur 7,07 km","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"3000000","credits_delegues":"3182175.12","credits_engages":"3182175.12","credits_emis":"3182175.12","date_demarrage":"2018-01-12","marche_no":",,","date_fin":"2023-10-10","taux_avancement":"1","observations":""},{"commune":"Tancherfi","intitule":"Aménagement de la piste reliant la RP 6003 vers Timoidiline sur 4 km","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"5062000","credits_delegues":"3453861.6","credits_engages":"3453861.6","credits_emis":"3453861.6","date_demarrage":"2018-01-05","marche_no":",,","date_fin":"2018-10-23","taux_avancement":"1","observations":""},{"commune":"Mestegmer","intitule":"construction de la route Hasi Sedra ","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"DPETL Taourirt","source_financement":"FDRZM","cout":"10469000","credits_delegues":"9684839.67","credits_engages":"9684839.67","credits_emis":"9684839.67","date_demarrage":"2019-02-25","marche_no":"47/2018","date_fin":"2020-07-28","taux_avancement":"1","observations":"ok"},{"commune":"Tancherfi-Sidi Ali Belkacem","intitule":"l'assistance technique pour la supervision, le suivi et le contrôle des travaux d'aménagement des pistes rurales dans la zone d'action de la Direction Provinciale de l'Agriculture de Taourirt.","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"600000","credits_delegues":"512645.18","credits_engages":"512645.18","credits_emis":"512645.18","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Machraa Hammadi","intitule":"étude d'élargissement et de renforcement de la RP6046 du PK30+000 au PK72+000 sur 40km","secteur":"Routes classées RC","annee":"2017","maitre_ouvrage":"DPETL Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"900000","credits_delegues":"900000","credits_engages":"449617.92","credits_emis":"419874.41","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"","observations":""},{"commune":"Melg El Ouidane-Machraa Hammadi","intitule":"Réalisation des études d'exécution et assistance technique  des travaux d'aménagement des pistes en milieu rural –Province de Taourirt-","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"220896","credits_delegues":"168678.93","credits_engages":"168678.93","credits_emis":"168678.93","date_demarrage":"","marche_no":"22/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"Ahl Oued Za-Machraa Hammadi","intitule":"Réalisation des études d'exécution et assistance technique  des travaux d'aménagement des pistes en milieu rural –Province de Taourirt-","secteur":"Routes non classées RNC","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"411140.7","credits_delegues":"373525.21","credits_engages":"373525.21","credits_emis":"373525.21","date_demarrage":"","marche_no":"38/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"Sidi Ali Belkacem","intitule":"Etude architecturale et suivi des travaux de construction d'un collège et Internat au chef-lieu de la commune de Sidi Ali Belkacem -Province de Taourirt","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"903571.98","credits_delegues":"903571.98","credits_engages":"903571.98","credits_emis":"903571.9800000001","date_demarrage":"","marche_no":"40/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"Sidi Ali Belkacem","intitule":"Etude technique et suivi des travaux de construction d'un Collège et Internat au chef-lieu de la commune de Sidi Ali Belkacem - Province de Taourirt ","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"318240","credits_delegues":"311405.89","credits_engages":"311405.89","credits_emis":"311405.89","date_demarrage":"","marche_no":"20/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"Sidi Ali Belkacem","intitule":"Contrôle technique des études et  des travaux de construction d'un collège et Internat au chef-lieu de la commune de Sidi Ali Belkacem-Province de Taourirt","secteur":"Education","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"90900","credits_delegues":"90000","credits_engages":"90000","credits_emis":"90000","date_demarrage":"","marche_no":"39/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"ain Lahjer-Gteter","intitule":"étude architecturale et suivi des travaux de :- Construction d'un centre de santé rural et de Logements de fonction à Sidi Moussa commune Ain Lahjer- Construction de Logements de fonction à Sidi Chafi Commune Gteter-Province de Taourirt.","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"124861.45","credits_delegues":"121143.56","credits_engages":"121143.56","credits_emis":"114843.18","date_demarrage":"","marche_no":"41/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"ain Lahjer-Gteter","intitule":"Etude technique et suivi des travaux : - construction d'un centre de sante rural et logement de fonction à Sidi Moussa commune Ain Lahjer  construction de logement de fonction à Sidi Chafi commune Gteter","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"83616","credits_delegues":"75413.44","credits_engages":"75413.44","credits_emis":"75413.44","date_demarrage":"","marche_no":"19/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"ain Lahjer-Gteter","intitule":"Contrôle technique des études et  des travaux de :- Construction d'un centre de santé rural et de Logements de fonction à Sidi Moussa commune AinLahjer- Construction de Logements de fonction à Sidi Chafi Commune Gteter-Province de Taourirt.","secteur":"Santé","annee":"2017","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"24240","credits_delegues":"22272","credits_engages":"22272","credits_emis":"22272","date_demarrage":"","marche_no":"37/2017","date_fin":"","taux_avancement":"1","observations":"ok"},{"commune":"Machraa Hammadi","intitule":"étude, assistance technique et contrôle des travaux d'élargissement et renforcement de la RR603 du PK15+000 au PK37+000","secteur":"Routes classées RC","annee":"2018","maitre_ouvrage":"DPETL Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"600000","credits_delegues":"0","credits_engages":"189326.52","credits_emis":"158940","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"","observations":""},{"commune":"Machraa Hammadi","intitule":"Construction de radiers sur oued laksoub au niveau du lieu sidi oukba","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"484431","credits_delegues":"629099.0900000001","credits_engages":"629099.0900000001","credits_emis":"629099.09","date_demarrage":"2018-12-06","marche_no":"23/2018","date_fin":"2019-04-26","taux_avancement":"1","observations":"Réception provisoire: 26/04/2019"},{"commune":"Melg El Ouidane","intitule":" Aménagement piste Od Zerrouk et Od Kerroum","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"1530480","credits_delegues":"3071135.63","credits_engages":"3071135.63","credits_emis":"3071135.63","date_demarrage":"2018-09-28","marche_no":"8/2018","date_fin":"2019-07-16","taux_avancement":"1","observations":"Réception provisoire: 16/07/2019"},{"commune":"Melg El Ouidane","intitule":"Aménagement piste Tayara ","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2336974","credits_delegues":"3090968.53","credits_engages":"3090968.53","credits_emis":"3090968.53","date_demarrage":"2018-12-06","marche_no":"24/2018","date_fin":"2019-12-26","taux_avancement":"1","observations":""},{"commune":"Ahl Oued Za","intitule":"Construction de la route reliant route barrage laghrass et l'école communautaire a Abida beni chbel de 06 km","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"3121802","credits_delegues":"6324384.23","credits_engages":"6324384.23","credits_emis":"6324384.23","date_demarrage":"2019-01-10","marche_no":"42/2018","date_fin":"2020-06-11","taux_avancement":"1","observations":"ok"},{"commune":"Sidi Ali Belkacem","intitule":"Construction d'un collège avec internat  au chef lieu de la Commune  ","secteur":"Education","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"18071949","credits_delegues":"20321820.64","credits_engages":"20321820.64","credits_emis":"20321820.64","date_demarrage":"2019-01-02","marche_no":"34/2018","date_fin":"2020-07-10","taux_avancement":"1","observations":"ok"},{"commune":"Ain Lahjer","intitule":"construction d'un centre de sante rural niveau1 à sidi moussa et 2 logements  de fonction ","secteur":"Santé","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2609364","credits_delegues":"2600074.33","credits_engages":"2600074.33","credits_emis":"2600074.33","date_demarrage":"2019-04-29","marche_no":"3/2019","date_fin":"12/4/2021","taux_avancement":"1","observations":""},{"commune":"Gteter","intitule":"construction de deux  Logements de fonction","secteur":"Santé","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"400000","credits_delegues":"346852.08","credits_engages":"346852.08","credits_emis":"346852.08","date_demarrage":"2018-10-26","marche_no":"16/2018","date_fin":"2019-07-05","taux_avancement":"1","observations":"Réception provisoire: 05/07/2019"},{"commune":"El Ateuf","intitule":"aménagement de la piste Rokn (tranche additionnelle) ","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"0","credits_delegues":"0","credits_engages":"","credits_emis":"","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"","observations":"les 5 projets des années 2018 et 2019 font l'objet d'un seul marché"},{"commune":"Sidi Ali Belkacem","intitule":"Aménagement piste Ouled chriff  Sur 04 km ","secteur":"Routes non classées RNC","annee":"2018","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"0","credits_delegues":"0","credits_engages":"","credits_emis":"","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"","observations":""},{"commune":"Machraa Hammadi","intitule":"Assistance technique à la maîtrise d œuvre pour le contrôle et suivi  des travaux d elargissement et de renforcement de la RR603","secteur":"Routes classées RC","annee":"2019","maitre_ouvrage":"DPETL Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"600000","credits_delegues":"600000","credits_engages":"558247.2","credits_emis":"489669.6","date_demarrage":"","marche_no":"","date_fin":"","taux_avancement":"","observations":""},{"commune":"Machraa Hammadi","intitule":"Elargissement et renforcement de la RR603 du pk15+000 au PK37+000 (2ème Tranche)","secteur":"Routes classées RC","annee":"2019","maitre_ouvrage":"DPETL Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"43000000","credits_delegues":"54464840","credits_engages":"54459953.79","credits_emis":"47211281.38","date_demarrage":"2020-01-01","marche_no":",,","date_fin":"","taux_avancement":"1","observations":"marché relancé sur la totalité de la section"},{"commune":"Ahl Oued Za","intitule":"Aménagement  piste reliant la route Taourirt tancherfi  à labghaghta  via  talmest ","secteur":"Routes non classées RNC","annee":"2019","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"6980000","credits_delegues":"5525097.42","credits_engages":"5525097.42","credits_emis":"5525097.42","date_demarrage":"2019-06-13","marche_no":"9/2019","date_fin":"2019-12-13","taux_avancement":"1","observations":""},{"commune":"Gteter","intitule":"Construction de piste à partir de la RP 6046 à Oued  Arsaf ","secteur":"Routes non classées RNC","annee":"2019","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2100000","credits_delegues":"1940906.2","credits_engages":"1940906.2","credits_emis":"1940906.2","date_demarrage":"2019-12-20","marche_no":"54/2019","date_fin":"2020-06-19","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen","intitule":"Aménagement de la piste menant au douar Aioune Dhagna à partir du Souk Béni Ouijguel (1er Tranche)","secteur":"Routes non classées RNC","annee":"2019","maitre_ouvrage":"DPA Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"5340000","credits_delegues":"4981359.6","credits_engages":"4981359.6","credits_emis":"3938460.27","date_demarrage":"2020-01-03","marche_no":"1/2019","date_fin":"2021-01-02","taux_avancement":"1","observations":""},{"commune":"Melg El Ouidane","intitule":"construction  d'Internat type I1 à Melg El Ouidane centre Commune Melg El Ouidane ","secteur":"Education","annee":"2019","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"5500000","credits_delegues":"5408590.359999999","credits_engages":"5408590.359999999","credits_emis":"5408590.359999999","date_demarrage":"2020-02-05","marche_no":"72/2019","date_fin":"2021-02-11","taux_avancement":"1","observations":""},{"commune":"El Ateuf - Oueled Mhamed","intitule":"Construction d'un collège avec internat au centre El Ateuf Ouled Mhamed","secteur":"Education","annee":"2020","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"13712000","credits_delegues":"19721656.75","credits_engages":"19721656.75","credits_emis":"19721656.75","date_demarrage":"","marche_no":"32/2020","date_fin":"2022-03-11","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen","intitule":"Construction d'un dispensaire rural avec un logement de fonction à douar bni ouijguel commune Sidi Lahcen","secteur":"Santé","annee":"2020","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"1343000","credits_delegues":"1119676.6600000001","credits_engages":"1119676.66","credits_emis":"1119676.6600000001","date_demarrage":"","marche_no":"25/2020","date_fin":"2021-08-23","taux_avancement":"1","observations":""},{"commune":"Ain Lahjer","intitule":"Travaux d'aménagement de la route reliant route Jerada et route Boujtat par Eddir (1ère tranche)","secteur":"Routes non classées RNC","annee":"2020","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"3124000","credits_delegues":"3844135.26","credits_engages":"3844135.26","credits_emis":"3844135.26","date_demarrage":"","marche_no":"23/2020","date_fin":"2021-05-31","taux_avancement":"1","observations":""},{"commune":"Gteter","intitule":"Etude Technique et suivi des travaux de construction  d'un collège avec internat au centre  Sidi Chafi à la commune Gteter","secteur":"Education","annee":"2021","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"241000","credits_delegues":"238080","credits_engages":"238080","credits_emis":"238080","date_demarrage":"","marche_no":"5/2021","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Sidi Ali Belkacem","intitule":"Etude Technique et suivi des travaux de construction d'un centre de santé rural niveau 1 et deux logements de fonction à Foum El Oued","secteur":"Santé","annee":"2021","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"90000","credits_delegues":"86846.4","credits_engages":"86846.4","credits_emis":"86846.4","date_demarrage":"","marche_no":"19/2021","date_fin":"","taux_avancement":"0.75","observations":""},{"commune":"Sidi Ali Belkacem","intitule":"travaux de construction d'un centre de santé rural niveau 1 et deux logements de fonction à Foum El Oued","secteur":"Santé","annee":"2021","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2400000","credits_delegues":"1982477.77","credits_engages":"1982477.77","credits_emis":"1982477.77","date_demarrage":"2022-05-09","marche_no":"5/2022","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Tancherfi","intitule":"travaux de constructiond'un collège+lycée type C2L1 avec internat Type I2 au centre Lakhmis","secteur":"Education","annee":"2022","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"18433000","credits_delegues":"23103804.33","credits_engages":"23103804.33","credits_emis":"23103804.33","date_demarrage":"2022-12-02","marche_no":"38/2022","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Ahl Oued Za","intitule":"travaux de  construction d'un dispensaire rural avec un logement de fonction à Beni Koulal","secteur":"Santé","annee":"2022","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"1400000","credits_delegues":"1130642.71","credits_engages":"1130642.71","credits_emis":"1130642.71","date_demarrage":"2022-05-11","marche_no":"2/2022","date_fin":"","taux_avancement":"1","observations":"O.P le 26/01/2022"},{"commune":"Tancherfi","intitule":"Electrification du douar Irgane","secteur":"Electrification","annee":"2022","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"1500000","credits_delegues":"1955152.1","credits_engages":"1955152.1","credits_emis":"1955152.1","date_demarrage":"","marche_no":"39/2022","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Gteter","intitule":"Extension du réseau d'électrification du douar Ghafoula","secteur":"Electrification","annee":"2022","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"1624000","credits_delegues":"1641665.99","credits_engages":"1641665.99","credits_emis":"1641665.99","date_demarrage":"","marche_no":"35/2022","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Sidi Ali Belkacem","intitule":"Construction de la piste reliant la route N°6052 et le centre de la commune de Sidi Ali Belkacem","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"7000000","credits_delegues":"6997475.52","credits_engages":"6997475.52","credits_emis":"6184265.56","date_demarrage":"","marche_no":"23/2023","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen","intitule":"Construction de la piste reliant la RR608 et Douar Bni Maala","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"10000000","credits_delegues":"16254378","credits_engages":"16254378","credits_emis":"13380615.34","date_demarrage":"","marche_no":"42/2023","date_fin":"","taux_avancement":"0.9","observations":""},{"commune":"Gteter","intitule":"Construction de la route reliant la RN19 et Lahmassis passant par Oueled ben Saha","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"4500000","credits_delegues":"5326932.48","credits_engages":"5326932.48","credits_emis":"380601.25","date_demarrage":"","marche_no":"20/2023","date_fin":"","taux_avancement":"0.4","observations":""},{"commune":"Ahl Oued Za","intitule":"Construction et revêtement de la piste reliant Ousraf à Bni Maala","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"2700000","credits_delegues":"3478334.88","credits_engages":"3478334.88","credits_emis":"3069575.08","date_demarrage":"","marche_no":"19/2023","date_fin":"","taux_avancement":"0.9","observations":""},{"commune":"Melg El Ouidane","intitule":"construction de la route non-classée  Zarga","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"4700000","credits_delegues":"6983559.84","credits_engages":"6983559.84","credits_emis":"6094908.09","date_demarrage":"","marche_no":"24/2023","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Tancherfi","intitule":"construction de la route reliant la RP 6005 à la  RP 603 par Khattiyine","secteur":"Routes non classées RNC","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"6000000","credits_delegues":"7847769.36","credits_engages":"7847769.36","credits_emis":"6966268.75","date_demarrage":"","marche_no":"21/2023","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Sidi Lahcen / sidi Ali Bellkacem","intitule":"Travaux de construction de la RP6003 du PK 0+000 au PK 40+000 (1ere  Tranche)","secteur":"Routes classées RC","annee":"2023","maitre_ouvrage":"DPETL Taourirt","maitre_delegue":"","source_financement":"FDRZM","cout":"19300000","credits_delegues":"21267000","credits_engages":"21265412.8","credits_emis":"2450260","date_demarrage":"","marche_no":",,","date_fin":"","taux_avancement":"","observations":""},{"commune":"Gteter","intitule":"Electrification des douars Sehb Laghzal, Rbaha et Ouled Slimane à la CT Gteter","secteur":"Electrification","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"703950","credits_delegues":"714241.87","credits_engages":"714241.87","credits_emis":"714241.87","date_demarrage":"","marche_no":"8/2023","date_fin":"","taux_avancement":"1","observations":""},{"commune":"Ouled Mhamed","intitule":"Equipement d'un forage en énergie solaire à Karn Aaziate","secteur":"AEP","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"200000","credits_delegues":"107805.64","credits_engages":"107805.64","credits_emis":"107805.64","date_demarrage":"","marche_no":"27/2023","date_fin":"","taux_avancement":"0","observations":""},{"commune":"Sidi Lahcen","intitule":"Construction de sanitaires au centre Sidi Lahcen","secteur":"Santé","annee":"2023","maitre_ouvrage":"Province de Taourirt","maitre_delegue":"","source_financement":"INDH","cout":"120000","credits_delegues":"0","credits_engages":"0","credits_emis":"0","date_demarrage":"","marche_no":"","date_fin":"","taux_avancement":"0","observations":""}],
+  cro_aep_electricite: [{"commune":"Sidi Ali Belkacem","localite":"AIN ICHRAFENE","intitule":"Electrification du village AIN ICHRAFENE","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"220","source_financement":"Cofinancement","cout_kdh":"1563","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"MAKDAD","intitule":"Electrification MT/BT du village MAKDAD","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"225","source_financement":"Cofinancement","cout_kdh":"1858","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Sidi Lahsen","localite":"CHOUIHIA","intitule":"Electrification MT/BT du village CHOUIHIA","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"135","source_financement":"Cofinancement","cout_kdh":"1341","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"LAAMOUR OULAD BOUCHAREB","intitule":"Electrification MT/BT du village LAAMOUR OULAD BOUCHAREB","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"115","source_financement":"Cofinancement","cout_kdh":"1090","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"TGHANIMT EXTENSION","intitule":"Electrification BT du village TGHANIMT","consistance":"Extension du réseau BT","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"130","source_financement":"Cofinancement","cout_kdh":"1260","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"SIDI MOUSSA","intitule":"Electrification MT/BT du village SIDI MOUSSA","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"220","source_financement":"Cofinancement","cout_kdh":"2169","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Sidi Ali Belkacem","localite":"AIN LAKBIRA","intitule":"Electrification MT/BT du village AIN LAKBIRA","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"65","source_financement":"Cofinancement","cout_kdh":"603","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Mestegmer","localite":"OULED KHLIFA LHASHAS","intitule":"Electrification MT/BT OULED KHLIFA LHASHAS","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"115","source_financement":"Cofinancement","cout_kdh":"1194","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"BOULAJRAF","intitule":"Electrification MT/BT du village BOULAJRAF","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"126","source_financement":"Cofinancement","cout_kdh":"1271","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ain Lehjer","localite":"TANORAT BOUAMICH","intitule":"Electrification MT/BT du village TANORAT BOUAMICH","consistance":"Electrification MT/BT des villages","secteur":"Electricité","annee":"2018","maitre_ouvrage":"ONEE-BE","nb_beneficiaires":"180","source_financement":"Cofinancement","cout_kdh":"2229","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Melg El Ouidane","localite":"Ouled Ali centre","intitule":"Extension du réseau d'AEP et réalisation des branchements individuels","consistance":"AEP par Branchement individuel","secteur":"AEP","annee":"2018","maitre_ouvrage":"ONEE-BO","nb_beneficiaires":"1000","source_financement":"Cofinancement","cout_kdh":"2000","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Melg El Ouidane","localite":"Ouled Zayed","intitule":"AEP par BI du douar Od Zayed","consistance":"","secteur":"AEP","annee":"2017","maitre_ouvrage":"ONEE-BO","nb_beneficiaires":"365","source_financement":"Cofinancement","cout_kdh":"1100","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Ahl Oued Za","localite":"OULED LAAMOURI ; OULED HAMMOU","intitule":"AEP par BI des douars de la commune","consistance":"","secteur":"AEP","annee":"2019","maitre_ouvrage":"ONEE-BO","nb_beneficiaires":"2197","source_financement":"Cofinancement","cout_kdh":"3200","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""},{"commune":"Mestegmer","localite":"douar Aghlal el Kharrouba","intitule":"Construction Pistes reliant la RP6003 aux douars aghlal El Kharrouba et El Mizab","consistance":"Construction de Pistes","secteur":"Routes, Pistes et OA","annee":"2018","maitre_ouvrage":"CRO","nb_beneficiaires":"","source_financement":"CRO","cout_kdh":"10771.13","credits_delegues":"10771.13","credits_engages":"10771.13","credits_emis":"8616.9","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"1","observations":""},{"commune":"Sidi Ali Belkacem","localite":"douar Sellaouit","intitule":"Construction d'une piste d'accès à douar Sellaouit","consistance":"Construction de Pistes","secteur":"Routes, Pistes et OA","annee":"2017","maitre_ouvrage":"CRO","nb_beneficiaires":"","source_financement":"CRO","cout_kdh":"4458.31","credits_delegues":"4458.31","credits_engages":"4458.31","credits_emis":"2674.99","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"1","observations":""},{"commune":"Ahl Oued Za","localite":"douar ouled abdou","intitule":"Construction Accès douar Ouled Abdou","consistance":"Construction de Pistes","secteur":"Routes, Pistes et OA","annee":"2017","maitre_ouvrage":"CRO","nb_beneficiaires":"","source_financement":"CRO","cout_kdh":"2139.32","credits_delegues":"2139.32","credits_engages":"2139.32","credits_emis":"1711.45","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"1","observations":""},{"commune":"Sidi Ali Belkacem","localite":"","intitule":"Piste d'accès douar ras laouad","consistance":"","secteur":"Routes, Pistes et OA","annee":"2019","maitre_ouvrage":"CRO","nb_beneficiaires":"","source_financement":"CRO","cout_kdh":"2058.63","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":"OP LE 30/04/2019"},{"commune":"Tancherfi;Ahl Oued Za;Sidi Ali Belkacem","localite":"","intitule":"AEP dans la province de Taourirt","consistance":"","secteur":"AEP","annee":"2019","maitre_ouvrage":"CRO","nb_beneficiaires":"","source_financement":"CRO","cout_kdh":"10890","credits_delegues":"","credits_engages":"","credits_emis":"","date_demarrage":"","date_fin":"","statut":"","taux_avancement":"","observations":""}],
+  education: [{"commune":"Sidi Ali Belkacem","intitule":"Construction d'un collège avec internat  au chef lieu de la Commune de Sidi Ali Belkacem","estimation_initiale":"19971949","cout_global":"21922082.67","difference":"1950133.67","etat_avancement":"projet opérationnel"},{"commune":"Melg El Ouidane","intitule":"Construction d'Internat type I1 à Melg El Ouidane centre Commune Melg El Ouidane","estimation_initiale":"6500000","cout_global":"5839719.81","difference":"-660280.19","etat_avancement":"projet opérationnel"},{"commune":"El Ateuf - Ouled Mhamed","intitule":"Construction d'un collège avec internat au centre El Ateuf Ouled Mhamed","estimation_initiale":"16500000","cout_global":"20977416.81","difference":"4477416.81","etat_avancement":"projet opérationnel"},{"commune":"Gteter","intitule":"Construction  d'un collège avec internat au centre  Sidi Chafi à la commune Gteter","estimation_initiale":"15750000","cout_global":"19515579.2","difference":"3765579.2","etat_avancement":"projet opérationnel"},{"commune":"Tancherfi","intitule":"Construction d'un collège+lycée type C2L1 avec internat Type I2 au centre Lakhmis","estimation_initiale":"19000000","cout_global":"26563173.82","difference":"7563173.82","etat_avancement":"projet opérationnel"}],
+  sante: [{"annee":"2018","commune":"Ain Lahjer","intitule":"construction d'un centre de sante rural niveau1 à sidi moussa et 2 logements  de fonction ","estimation_initiale":"2909364","cout_global":"2922096.41","difference":"12732.41","etat_avancement":"projet opérationnel"},{"annee":"2018","commune":"Gteter","intitule":"construction de deux  Logements de fonction","estimation_initiale":"400000","cout_global":"346852.08","difference":"-53147.92","etat_avancement":"projet opérationnel"},{"annee":"2019","commune":"Sidi Ali Belkacem","intitule":"Construction d'un dispensaire rural à douar Tanezarte avec un logement de fonction","estimation_initiale":"1600000","cout_global":"1156984.18","difference":"-443015.82","etat_avancement":"projet opérationnel"},{"annee":"2020","commune":"Sidi Lahcen","intitule":"Construction d'un dispensaire rural avec un logement de fonction à douar bni ouijguel","estimation_initiale":"1600000","cout_global":"1294586.62","difference":"-305413.38","etat_avancement":"projet opérationnel"},{"annee":"2021","commune":"Sidi Ali Belkacem","intitule":"construction d'un centre de santé rural niveau 1 et deux logements de fonction à Foum El Oued","estimation_initiale":"2600000","cout_global":"2412407.17","difference":"-187592.83","etat_avancement":"projet opérationnel"},{"annee":"2022","commune":"Ahl Oued Za","intitule":"construction d'un dispensaire rural avec un logement de fonction à Beni Koulal","estimation_initiale":"1500000","cout_global":"1248552.65","difference":"-251447.35","etat_avancement":"projet opérationnel"}],
+  rnc: [{"annee":"2017","intitule":"5 projets","estimation_initiale":"23100000","cout_global":"20938284.53","difference":"-2161715.47","etat_avancement":"projet opérationnel"},{"annee":"2018","intitule":"4 projets","estimation_initiale":"7473687","cout_global":"13289151.82","difference":"5815464.82","etat_avancement":"projet opérationnel"},{"annee":"2019","intitule":"4 projets","estimation_initiale":"21820000","cout_global":"18890063.58","difference":"-2929936.42","etat_avancement":"projet opérationnel"},{"annee":"2020","intitule":"0 projets","estimation_initiale":"0","cout_global":"0","difference":"0","etat_avancement":"projet opérationnel"},{"annee":"2021","intitule":"0 projets","estimation_initiale":"0","cout_global":"0","difference":"0","etat_avancement":"projet opérationnel"},{"annee":"2022","intitule":"0 projets","estimation_initiale":"0","cout_global":"","difference":"0","etat_avancement":""},{"annee":"2023","intitule":"6 projets","estimation_initiale":"35063000","cout_global":"47894094.96","difference":"12831094.96","etat_avancement":"projet opérationnel"}]
+};
+
+// ===== PAGINATION STATE =====
+const state = { fdrzm:{page:1,perPage:15}, cro:{page:1,perPage:15} };
+
+// ===== HELPERS =====
+function fmt(n) {
+  const v = parseFloat(n);
+  if(isNaN(v)||v===0) return '—';
+  return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(v);
+}
+function sectorBadge(s){
+  const m={'Education':'badge-edu','Santé':'badge-sante','Routes non classées RNC':'badge-rnc','Routes classées RC':'badge-rc','Electrification':'badge-elec','AEP':'badge-aep','Routes, Pistes et OA':'badge-piste'};
+  const cls=m[s]||'badge-edu';
+  const labels={'Education':'Éducation','Routes non classées RNC':'RNC','Routes classées RC':'RC','Electrification':'Électrif.','Routes, Pistes et OA':'Pistes'};
+  return `<span class="badge ${cls}">${labels[s]||s}</span>`;
+}
+function sourceBadge(s){
+  const m={'INDH':'badge-indh','FDRZM':'badge-fdrzm','CRO':'badge-cro','Cofinancement':'badge-elec','Budget ONEE':'badge-aep'};
+  return `<span class="badge ${m[s]||'badge-fdrzm'}">${s||'—'}</span>`;
+}
+function tauxBar(t){
+  const v = parseFloat(t);
+  if(isNaN(v)) return '—';
+  const pct = Math.min(100, v*100);
+  const col = pct>=100?'#10b981':pct>=75?'#3b82f6':pct>=50?'#f59e0b':'#ef4444';
+  return `<div class="taux-cell"><div class="taux-bar"><div class="taux-fill" style="width:${pct}%;background:${col}"></div></div><span class="progress-pct">${Math.round(pct)}%</span></div>`;
+}
+function diffCell(d){
+  const v=parseFloat(d);
+  if(isNaN(v)) return '—';
+  const col=v>=0?'#10b981':'#ef4444';
+  return `<span style="color:${col};font-weight:600">${v>=0?'+':''}${fmt(v)}</span>`;
+}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+  t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== TAB SWITCH =====
+function switchTab(name){
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(e=>{
+    const fn=e.getAttribute('onclick')||'';
+    if(fn.includes("'"+name+"'")) e.classList.add('active');
+  });
+}
+
+// ===== DASHBOARD =====
+function buildDashboard(){
+  const data = DB.fdrzm_indh;
+  const total = data.length;
+  const completed = data.filter(r=>parseFloat(r.taux_avancement)>=1).length;
+  const totalCost = data.reduce((s,r)=>s+(parseFloat(r.cout)||0),0);
+  const totalEmis = data.reduce((s,r)=>s+(parseFloat(r.credits_emis)||0),0);
+
+  document.getElementById('badge-fdrzm').textContent=DB.fdrzm_indh.length;
+  document.getElementById('badge-cro').textContent=DB.cro_aep_electricite.length;
+  document.getElementById('badge-edu').textContent=DB.education.length;
+  document.getElementById('badge-sante').textContent=DB.sante.length;
+  document.getElementById('badge-rnc').textContent=DB.rnc.length;
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card blue">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">${total}</div>
+      <div class="stat-label">Projets FDRZM & INDH</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value">${completed}</div>
+      <div class="stat-label">Projets achevés (100%)</div>
+      <div class="stat-change pos">↑ ${Math.round(completed/total*100)}% du total</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value">${(totalCost/1e9).toFixed(2)}Md</div>
+      <div class="stat-label">Coût total (DH)</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">📤</div>
+      <div class="stat-value">${(totalEmis/1e9).toFixed(2)}Md</div>
+      <div class="stat-label">Crédits émis (DH)</div>
+    </div>
+  `;
+
+  // Sector chart
+  const sectors={};
+  data.forEach(r=>{ sectors[r.secteur]=(sectors[r.secteur]||0)+1; });
+  const maxS=Math.max(...Object.values(sectors));
+  const colors={'Education':'#3b82f6','Santé':'#ef4444','Routes non classées RNC':'#f59e0b','Routes classées RC':'#8b5cf6','Electrification':'#10b981','AEP':'#06b6d4','Electrification ':'#10b981'};
+  const sortedS=Object.entries(sectors).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('sector-chart').innerHTML=sortedS.map(([s,c])=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${s}">${s.length>14?s.slice(0,14)+'…':s}</div>
+      <div class="bar-wrap">
+        <div class="bar-fill" style="width:${c/maxS*100}%;background:${colors[s]||'#64748b'}">
+          <span class="bar-val">${c}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Finance donut
+  const finances={};
+  data.forEach(r=>{ finances[r.source_financement]=(finances[r.source_financement]||0)+1; });
+  const fColors=['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#06b6d4'];
+  const fEntries=Object.entries(finances);
+  const fTotal=fEntries.reduce((s,[,v])=>s+v,0);
+  let offset=0;
+  const r=40, cx=55, cy=55, circ=2*Math.PI*r;
+  const segs=fEntries.map(([k,v],i)=>{
+    const pct=v/fTotal, dash=pct*circ, gap=circ-dash;
+    const seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${fColors[i%fColors.length]}" stroke-width="14" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset*circ}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset+=pct;
+    return seg;
+  });
+  document.getElementById('finance-chart').innerHTML=`
+    <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#2e3347" stroke-width="14"/>
+      ${segs.join('')}
+      <text x="${cx}" y="${cy}" text-anchor="middle" dy="4" fill="#e2e8f0" font-size="13" font-weight="bold">${total}</text>
+    </svg>
+    <div class="donut-legend">
+      ${fEntries.map(([k,v],i)=>`<div class="legend-item"><div class="legend-dot" style="background:${fColors[i%fColors.length]}"></div>${k}: ${v}</div>`).join('')}
+    </div>
+  `;
+
+  // Recent
+  document.getElementById('recent-list').innerHTML=data.slice(0,6).map(r=>{
+    const col={'Education':'#3b82f6','Santé':'#ef4444','Routes non classées RNC':'#f59e0b','Routes classées RC':'#8b5cf6','Electrification':'#10b981','AEP':'#06b6d4'}[r.secteur]||'#64748b';
+    const taux=parseFloat(r.taux_avancement)||0;
+    return `<div class="recent-item">
+      <div class="recent-sector-dot" style="background:${col}"></div>
+      <div class="recent-info">
+        <div class="recent-title" title="${r.intitule}">${r.intitule}</div>
+        <div class="recent-sub">${r.commune} • ${r.annee} • ${r.source_financement}</div>
+      </div>
+      <div class="progress-mini">
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,taux*100)}%;background:${taux>=1?'#10b981':taux>0?'#f59e0b':'#ef4444'}"></div></div>
+        <span class="progress-pct">${Math.round(taux*100)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const SHEET_MAP={fdrzm:'fdrzm_indh',cro:'cro_aep_electricite',education:'education',sante:'sante',rnc:'rnc'};
+
+// ===== TABLE RENDERING =====
+function getFiltered(sheet){
+  // Map tab name to DB key
+  const dbKey = SHEET_MAP[sheet] || sheet;
+  let data=[...(DB[dbKey]||[])];
+  if(sheet==='fdrzm'){
+    const q=(document.getElementById('search-fdrzm')?.value||'').toLowerCase();
+    const fs=document.getElementById('filter-fdrzm-secteur')?.value||'';
+    const fa=document.getElementById('filter-fdrzm-annee')?.value||'';
+    if(q) data=data.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+    if(fs) data=data.filter(r=>r.secteur===fs);
+    if(fa) data=data.filter(r=>String(r.annee)===fa);
+  } else if(sheet==='cro'){
+    const q=(document.getElementById('search-cro')?.value||'').toLowerCase();
+    const fs=document.getElementById('filter-cro-secteur')?.value||'';
+    if(q) data=data.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+    if(fs) data=data.filter(r=>r.secteur===fs);
+  } else if(sheet==='education'){
+    const q=(document.getElementById('search-education')?.value||'').toLowerCase();
+    if(q) data=data.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+  } else if(sheet==='sante'){
+    const q=(document.getElementById('search-sante')?.value||'').toLowerCase();
+    if(q) data=data.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+  } else if(sheet==='rnc'){
+    const q=(document.getElementById('search-rnc')?.value||'').toLowerCase();
+    if(q) data=data.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+  }
+  return data;
+}
+
+function renderTable(sheet){
+  const filtered=getFiltered(sheet);
+  if(sheet==='fdrzm'||sheet==='cro'){
+    if(sheet==='fdrzm') state.fdrzm.page=1;
+    if(sheet==='cro') state.cro.page=1;
+    renderPaged(sheet, filtered);
+  } else {
+    renderSimple(sheet, filtered);
+  }
+}
+
+function renderPaged(sheet, data){
+  const s=state[sheet];
+  const total=data.length;
+  const pages=Math.max(1,Math.ceil(total/s.perPage));
+  s.page=Math.min(s.page,pages);
+  const slice=data.slice((s.page-1)*s.perPage, s.page*s.perPage);
+  const tbody=document.getElementById('tbody-'+sheet);
+
+  if(sheet==='fdrzm'){
+    tbody.innerHTML=slice.map((r,i)=>`<tr>
+      <td class="td-truncate" title="${r.commune}">${r.commune||'—'}</td>
+      <td class="td-truncate" title="${r.intitule}">${r.intitule||'—'}</td>
+      <td>${sectorBadge(r.secteur)}</td>
+      <td>${r.annee||'—'}</td>
+      <td>${sourceBadge(r.source_financement)}</td>
+      <td>${fmt(r.cout)}</td>
+      <td>${tauxBar(r.taux_avancement)}</td>
+      <td><div class="action-btns">
+        <button class="btn-edit" onclick="openEditModal('fdrzm',${(s.page-1)*s.perPage+i})">✏️</button>
+        <button class="btn-del" onclick="deleteRow('fdrzm',${(s.page-1)*s.perPage+i})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  } else if(sheet==='cro'){
+    tbody.innerHTML=slice.map((r,i)=>`<tr>
+      <td class="td-truncate">${r.commune||'—'}</td>
+      <td class="td-truncate">${r.localite||'—'}</td>
+      <td class="td-truncate" title="${r.intitule}">${r.intitule||'—'}</td>
+      <td>${sectorBadge(r.secteur)}</td>
+      <td>${r.annee||'—'}</td>
+      <td>${fmt(r.cout_kdh)}</td>
+      <td>${r.nb_beneficiaires||'—'}</td>
+      <td>${tauxBar(r.taux_avancement)}</td>
+      <td><div class="action-btns">
+        <button class="btn-edit" onclick="openEditModal('cro',${(s.page-1)*s.perPage+i})">✏️</button>
+        <button class="btn-del" onclick="deleteRow('cro',${(s.page-1)*s.perPage+i})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  }
+
+  if(total===0){
+    tbody.innerHTML=`<tr><td colspan="9" class="empty"><div class="empty-icon">🔍</div><div>Aucun résultat trouvé</div></td></tr>`;
+  }
+  renderPagination(sheet, total, pages, s.page);
+}
+
+function renderSimple(sheet, data){
+  const tbody=document.getElementById('tbody-'+sheet);
+  if(!tbody) return;
+  if(sheet==='education'){
+    if(!data.length){tbody.innerHTML=`<tr><td colspan='7' class='empty'><div class='empty-icon'>🏫</div><div>Aucun résultat</div></td></tr>`;return;}
+    tbody.innerHTML=data.map((r,i)=>`<tr>
+      <td>${r.commune||'—'}</td>
+      <td class="td-truncate" style="max-width:280px" title="${r.intitule}">${r.intitule||'—'}</td>
+      <td>${fmt(r.estimation_initiale)}</td>
+      <td>${fmt(r.cout_global)}</td>
+      <td>${diffCell(r.difference)}</td>
+      <td><span class="badge badge-edu">${r.etat_avancement||'—'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn-edit" onclick="openEditModal('education',${i})">✏️</button>
+        <button class="btn-del" onclick="deleteRow('education',${i})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  } else if(sheet==='sante'){
+    if(!data.length){tbody.innerHTML=`<tr><td colspan='8' class='empty'><div class='empty-icon'>🏥</div><div>Aucun résultat</div></td></tr>`;return;}
+    tbody.innerHTML=data.map((r,i)=>`<tr>
+      <td>${r.annee||'—'}</td>
+      <td>${r.commune||'—'}</td>
+      <td class="td-truncate" style="max-width:250px" title="${r.intitule}">${r.intitule||'—'}</td>
+      <td>${fmt(r.estimation_initiale)}</td>
+      <td>${fmt(r.cout_global)}</td>
+      <td>${diffCell(r.difference)}</td>
+      <td><span class="badge badge-sante">${r.etat_avancement||'—'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn-edit" onclick="openEditModal('sante',${i})">✏️</button>
+        <button class="btn-del" onclick="deleteRow('sante',${i})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  } else if(sheet==='rnc'){
+    if(!data.length){tbody.innerHTML=`<tr><td colspan='7' class='empty'><div class='empty-icon'>🛣️</div><div>Aucun résultat</div></td></tr>`;return;}
+    tbody.innerHTML=data.map((r,i)=>`<tr>
+      <td>${r.annee||'—'}</td>
+      <td>${r.intitule||'—'}</td>
+      <td>${fmt(r.estimation_initiale)}</td>
+      <td>${fmt(r.cout_global)}</td>
+      <td>${diffCell(r.difference)}</td>
+      <td><span class="badge badge-rnc">${r.etat_avancement||'—'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn-edit" onclick="openEditModal('rnc',${i})">✏️</button>
+        <button class="btn-del" onclick="deleteRow('rnc',${i})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  }
+}
+
+function renderPagination(sheet, total, pages, current){
+  const p=document.getElementById('pag-'+sheet);
+  if(!p) return;
+  let html=`<span class="page-info">${total} enregistrements — Page ${current}/${pages}</span>`;
+  html+=`<button class="page-btn" onclick="goPage('${sheet}',${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  for(let i=Math.max(1,current-2);i<=Math.min(pages,current+2);i++){
+    html+=`<button class="page-btn ${i===current?'active':''}" onclick="goPage('${sheet}',${i})">${i}</button>`;
+  }
+  html+=`<button class="page-btn" onclick="goPage('${sheet}',${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  p.innerHTML=html;
+}
+
+function goPage(sheet, page){
+  const filtered=getFiltered(sheet);
+  const pages=Math.max(1,Math.ceil(filtered.length/state[sheet].perPage));
+  state[sheet].page=Math.max(1,Math.min(pages,page));
+  renderPaged(sheet, filtered);
+}
+
+// ===== INIT FILTERS =====
+function initFilters(){
+  const s1=document.getElementById('filter-fdrzm-secteur');
+  const s2=document.getElementById('filter-fdrzm-annee');
+  const sectors=[...new Set(DB.fdrzm_indh.map(r=>r.secteur).filter(Boolean))].sort();
+  const years=[...new Set(DB.fdrzm_indh.map(r=>r.annee).filter(Boolean))].sort();
+  sectors.forEach(s=>s1.innerHTML+=`<option value="${s}">${s}</option>`);
+  years.forEach(y=>s2.innerHTML+=`<option value="${y}">${y}</option>`);
+  const s3=document.getElementById('filter-cro-secteur');
+  const cSectors=[...new Set(DB.cro_aep_electricite.map(r=>r.secteur).filter(Boolean))].sort();
+  cSectors.forEach(s=>s3.innerHTML+=`<option value="${s}">${s}</option>`);
+}
+
+// ===== DELETE =====
+function deleteRow(sheet, idx){
+  if(!confirm('Supprimer cet enregistrement ?')) return;
+  const dbKey=SHEET_MAP[sheet]||sheet;
+  DB[dbKey].splice(idx,1);
+  renderTable(sheet);
+  buildDashboard();
+  const badgeMap={fdrzm:'fdrzm',cro:'cro',education:'edu',sante:'sante',rnc:'rnc'};
+  const badgeEl=document.getElementById('badge-'+badgeMap[sheet]);
+  if(badgeEl) badgeEl.textContent=DB[dbKey].length;
+  showToast('Enregistrement supprimé');
+}
+
+// ===== MODAL =====
+const FIELDS={
+  fdrzm:[
+    {k:'commune',l:'Commune',full:false},{k:'intitule',l:'Intitulé du projet',full:true},
+    {k:'secteur',l:'Secteur',type:'select',opts:['Education','Santé','Routes non classées RNC','Routes classées RC','Electrification','AEP']},
+    {k:'annee',l:'Année'},{k:'maitre_ouvrage',l:"Maître d'ouvrage"},{k:'source_financement',l:'Source financement',type:'select',opts:['FDRZM','INDH']},
+    {k:'cout',l:'Coût (DH)'},{k:'credits_delegues',l:'Crédits délégués'},{k:'credits_engages',l:'Crédits engagés'},{k:'credits_emis',l:'Crédits émis'},
+    {k:'date_demarrage',l:'Date démarrage',type:'date'},{k:'date_fin',l:'Date fin',type:'date'},
+    {k:'marche_no',l:'Marché N°'},{k:'taux_avancement',l:'Taux avancement (0-1)'},{k:'observations',l:'Observations',full:true}
+  ],
+  cro:[
+    {k:'commune',l:'Commune'},{k:'localite',l:'Localité'},
+    {k:'intitule',l:'Intitulé',full:true},{k:'consistance',l:'Consistance'},
+    {k:'secteur',l:'Secteur',type:'select',opts:['Electricité','AEP','Routes, Pistes et OA']},
+    {k:'annee',l:'Année'},{k:'maitre_ouvrage',l:"Maître d'ouvrage"},{k:'source_financement',l:'Source'},
+    {k:'cout_kdh',l:'Coût (KDH)'},{k:'nb_beneficiaires',l:'Nb bénéficiaires'},
+    {k:'taux_avancement',l:'Taux avancement'},{k:'observations',l:'Observations',full:true}
+  ],
+  education:[
+    {k:'commune',l:'Commune'},{k:'intitule',l:'Intitulé',full:true},
+    {k:'estimation_initiale',l:'Estimation initiale (DH)'},{k:'cout_global',l:'Coût global (DH)'},
+    {k:'difference',l:'Différence (DH)'},{k:'etat_avancement',l:"État d'avancement"}
+  ],
+  sante:[
+    {k:'annee',l:'Année'},{k:'commune',l:'Commune'},
+    {k:'intitule',l:'Intitulé',full:true},
+    {k:'estimation_initiale',l:'Estimation initiale (DH)'},{k:'cout_global',l:'Coût global (DH)'},
+    {k:'difference',l:'Différence (DH)'},{k:'etat_avancement',l:"État d'avancement"}
+  ],
+  rnc:[
+    {k:'annee',l:'Année'},{k:'intitule',l:'Intitulé',full:true},
+    {k:'estimation_initiale',l:'Estimation initiale (DH)'},{k:'cout_global',l:'Coût global (DH)'},
+    {k:'difference',l:'Différence (DH)'},{k:'etat_avancement',l:"État d'avancement"}
+  ]
+};
+
+let currentModal={sheet:null,idx:null};
+
+function buildForm(sheet, data){
+  const fields=FIELDS[sheet]||[];
+  return `<div class="form-grid">${fields.map(f=>{
+    const val=data?data[f.k]||'':'';
+    let input;
+    if(f.type==='select')
+      input=`<select class="form-input" name="${f.k}"><option value="">—</option>${f.opts.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}</select>`;
+    else if(f.type==='date')
+      input=`<input class="form-input" type="date" name="${f.k}" value="${val}">`;
+    else
+      input=`<input class="form-input" type="text" name="${f.k}" value="${val.replace(/"/g,'&quot;')}">`;
+    return `<div class="form-group${f.full?' full':''}"><label class="form-label">${f.l}</label>${input}</div>`;
+  }).join('')}</div>
+  <div class="form-actions">
+    <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+    <button class="btn-save" onclick="saveModal()">💾 Enregistrer</button>
+  </div>`;
+}
+
+function openAddModal(tab){
+  currentModal={sheet:tab,idx:null};
+  document.getElementById('modal-title').textContent='Ajouter un enregistrement';
+  document.getElementById('modal-body').innerHTML=buildForm(tab,null);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEditModal(tab, idx){
+  const sheet=SHEET_MAP[tab];
+  const data=DB[sheet][idx];
+  currentModal={sheet:tab,idx};
+  document.getElementById('modal-title').textContent='Modifier l\'enregistrement';
+  document.getElementById('modal-body').innerHTML=buildForm(tab,data);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+
+function saveModal(){
+  const {sheet,idx}=currentModal;
+  const dbKey=SHEET_MAP[sheet];
+  const inputs=document.querySelectorAll('#modal-body .form-input');
+  const obj={};
+  inputs.forEach(inp=>{ obj[inp.name]=inp.value; });
+  if(idx===null){
+    DB[dbKey].unshift(obj);
+    showToast('Enregistrement ajouté ✨');
+  } else {
+    DB[dbKey][idx]=obj;
+    showToast('Enregistrement mis à jour');
+  }
+  closeModal();
+  renderTable(sheet);
+  buildDashboard();
+  const badgeMap2={fdrzm:'fdrzm',cro:'cro',education:'edu',sante:'sante',rnc:'rnc'};
+  const badgeEl2=document.getElementById('badge-'+badgeMap2[sheet]);
+  if(badgeEl2) badgeEl2.textContent=DB[dbKey].length;
+}
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ===== INIT =====
+initFilters();
+buildDashboard();
+renderTable('fdrzm');
+renderTable('cro');
+renderTable('education');
+renderTable('sante');
+renderTable('rnc');
+</script>
 </body>
 </html>
